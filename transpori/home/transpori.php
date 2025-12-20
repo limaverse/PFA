@@ -1,3 +1,8 @@
+<?php
+session_start();
+$is_logged_in = isset($_SESSION['user_id']);
+$user_name = $_SESSION['user_name'] ?? '';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,29 +10,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transpori | Safe Transportation Reporting System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="C:\xampp\htdocs\PFA\transpori\home\css\transpori css.css">
-    
+    <link rel="stylesheet" href="/PFA/transpori/home/css/transpori css.css">
 </head>
 <body>
     <!-- Header -->
     <header>
         <div class="container">
             <nav class="navbar">
-                <a href="#" class="logo">
+                <a href="<?php echo $is_logged_in ? '/PFA/transpori/dashuser/index.php' : '#home'; ?>" class="logo">
                     <i class="fas fa-shield-alt"></i>
                     Transpori
                 </a>
                 <ul class="nav-links">
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#services">Services</a></li>
-                    <li><a href="#articles">Resources</a></li>
-                    <li><a href="#contact">Contact</a></li>
+                    <?php if ($is_logged_in): ?>
+                        <!-- Logged In Navigation -->
+                        <li><a href="/PFA/transpori/dashuser/index.php" class="nav-link">Home</a></li>
+                        <li><a href="/PFA/transpori/dashuser/my-experiences.php" class="nav-link">My Experiences</a></li>
+                        <li><a href="/PFA/transpori/dashuser/share.php" class="nav-link">Share Experience</a></li>
+                        <li><a href="/PFA/transpori/dashuser/tips.php" class="nav-link">Safety Tips</a></li>
+                        <li><a href="/PFA/transpori/dashuser/emergency.php" class="nav-link">Emergency Contacts</a></li>
+                    <?php else: ?>
+                        <!-- Logged Out Navigation (Main Page) -->
+                        <li><a href="#home" class="nav-link scroll-link">Home</a></li>
+                        <li><a href="#about" class="nav-link scroll-link">About</a></li>
+                        <li><a href="#services" class="nav-link scroll-link">Services</a></li>
+                        <li><a href="#articles" class="nav-link scroll-link">Resources</a></li>
+                        <li><a href="#contact" class="nav-link scroll-link">Contact</a></li>
+                    <?php endif; ?>
                 </ul>
                 <div class="auth-buttons">
-    <a href="../login...signup/log sign.html?tab=login" class="btn btn-outline">Login</a>
-    <a href="../login...signup/log sign.html?tab=signup" class="btn">Sign Up</a>
-</div>
+                    <?php if ($is_logged_in): ?>
+                        <!-- Profile and Logout buttons -->
+                        <a href="#" class="profile-btn">
+                            <div class="profile-avatar">
+                                <?php echo substr($user_name, 0, 2); ?>
+                            </div>
+                            <span><?php echo htmlspecialchars(explode(' ', $user_name)[0]); ?></span>
+                        </a>
+                        <a href="/PFA/transpori/dashuser/logout.php" class="btn btn-outline">Logout</a>
+                    <?php else: ?>
+                        <!-- Login/Signup buttons -->
+                        <a href="/PFA/transpori/login...signup/logsign.php?tab=login" class="btn btn-outline">Login</a>
+                        <a href="/PFA/transpori/login...signup/logsign.php?tab=signup" class="btn">Sign Up</a>
+                    <?php endif; ?>
+                </div>
                 <button class="hamburger">
                     <i class="fas fa-bars"></i>
                 </button>
@@ -42,14 +68,19 @@
                 <h1>Safe Transportation for <span style="color: var(--primary);">Everyone</span></h1>
                 <p>Transpori is a community-driven platform for reporting safety incidents, sharing experiences, and accessing resources to make public transportation safer in Tunisia.</p>
                 <div class="hero-btns">
-                    <a href="#services" class="btn">Report an Incident</a>
-                    <a href="#articles" class="btn btn-outline">View Resources</a>
+                    <?php if ($is_logged_in): ?>
+                        <a href="/PFA/transpori/dashuser/share.php" class="btn">Share Experience</a>
+                        <a href="/PFA/transpori/dashuser/tips.php" class="btn btn-outline">View Safety Tips</a>
+                    <?php else: ?>
+                        <a href="#services" class="btn scroll-link">Report an Incident</a>
+                        <a href="#articles" class="btn btn-outline scroll-link">View Resources</a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Emergency Contacts Section -->
+    <!-- Emergency Contacts -->
     <section class="emergency-contacts">
         <div class="container">
             <div class="section-title">
@@ -99,11 +130,13 @@
                     <h2>Making Transportation Safer Together</h2>
                     <p>Transpori is a safe transportation reporting system designed to empower citizens, improve safety standards, and create accountability in Tunisia's public transportation system.</p>
                     <p>Our platform allows users to report incidents, share experiences, access emergency contacts, and stay informed about transportation safety through educational resources and community engagement.</p>
-                    <a href="../login...signup/auth.html?tab=signup" class="btn">Join Our Community</a>
+                    <?php if (!$is_logged_in): ?>
+                        <a href="/PFA/transpori/login...signup/logsign.php?tab=signup" class="btn">Join Our Community</a>
+                    <?php endif; ?>
                 </div>
                 <div class="about-image">
-                    <div style="width: 100%; height: 400px; background-color: #dbeafe; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--gray);">
-                        <i class="fas fa-bus" style="font-size: 5rem; color: var(--primary);"></i>
+                    <div class="placeholder-image">
+                        <i class="fas fa-bus"></i>
                     </div>
                 </div>
             </div>
@@ -123,7 +156,11 @@
                     </div>
                     <h3>Incident Reporting</h3>
                     <p>Report safety incidents and harassment cases in public transportation with our secure, anonymous system.</p>
-                    <a href="../login...signup/auth.html?tab=signup" class="btn">Report Now</a>
+                    <?php if ($is_logged_in): ?>
+                        <a href="/PFA/transpori/dashuser/share.php" class="btn">Report Now</a>
+                    <?php else: ?>
+                        <a href="/PFA/transpori/login...signup/logsign.php?tab=signup" class="btn">Report Now</a>
+                    <?php endif; ?>
                 </div>
                 <div class="service-card">
                     <div class="service-icon">
@@ -131,7 +168,11 @@
                     </div>
                     <h3>Share Experiences</h3>
                     <p>Share your positive and negative transportation experiences to help others and drive improvements.</p>
-                    <a href="../login...signup/auth.html?tab=signup" class="btn">Share Experience</a>
+                    <?php if ($is_logged_in): ?>
+                        <a href="/PFA/transpori/dashuser/share.php" class="btn">Share Experience</a>
+                    <?php else: ?>
+                        <a href="/PFA/transpori/login...signup/logsign.php?tab=signup" class="btn">Share Experience</a>
+                    <?php endif; ?>
                 </div>
                 <div class="service-card">
                     <div class="service-icon">
@@ -139,7 +180,11 @@
                     </div>
                     <h3>Safety Statistics</h3>
                     <p>View statistics and trends about transportation safety issues to stay informed about current challenges.</p>
-                    <a href="#" class="btn">View Statistics</a>
+                    <?php if ($is_logged_in): ?>
+                        <a href="/PFA/transpori/dashuser/index.php" class="btn">View Statistics</a>
+                    <?php else: ?>
+                        <a href="/PFA/transpori/login...signup/logsign.php?tab=signup" class="btn">View Statistics</a>
+                    <?php endif; ?>
                 </div>
                 <div class="service-card">
                     <div class="service-icon">
@@ -147,7 +192,11 @@
                     </div>
                     <h3>Community Events</h3>
                     <p>Participate in community events and awareness campaigns to promote transportation safety.</p>
-                    <a href="#" class="btn">View Events</a>
+                    <?php if ($is_logged_in): ?>
+                        <a href="/PFA/transpori/dashuser/index.php" class="btn">View Events</a>
+                    <?php else: ?>
+                        <a href="/PFA/transpori/login...signup/logsign.php?tab=signup" class="btn">View Events</a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -171,7 +220,11 @@
                             <span><i class="far fa-calendar"></i> May 15, 2023</span>
                             <span><i class="far fa-eye"></i> 1.2K views</span>
                         </div>
-                        <a href="#" class="btn btn-outline">Read More</a>
+                        <?php if ($is_logged_in): ?>
+                            <a href="/PFA/transpori/dashuser/tips.php" class="btn btn-outline">Read More</a>
+                        <?php else: ?>
+                            <a href="/PFA/transpori/login...signup/logsign.php?tab=signup" class="btn btn-outline">Read More</a>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="article-card">
@@ -185,7 +238,11 @@
                             <span><i class="far fa-calendar"></i> April 28, 2023</span>
                             <span><i class="far fa-eye"></i> 987 views</span>
                         </div>
-                        <a href="#" class="btn btn-outline">Read More</a>
+                        <?php if ($is_logged_in): ?>
+                            <a href="/PFA/transpori/dashuser/tips.php" class="btn btn-outline">Read More</a>
+                        <?php else: ?>
+                            <a href="/PFA/transpori/login...signup/logsign.php?tab=signup" class="btn btn-outline">Read More</a>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="article-card">
@@ -199,7 +256,11 @@
                             <span><i class="far fa-calendar"></i> June 3, 2023</span>
                             <span><i class="far fa-eye"></i> 1.5K views</span>
                         </div>
-                        <a href="#" class="btn btn-outline">Read More</a>
+                        <?php if ($is_logged_in): ?>
+                            <a href="/PFA/transpori/dashuser/tips.php" class="btn btn-outline">Read More</a>
+                        <?php else: ?>
+                            <a href="/PFA/transpori/login...signup/logsign.php?tab=signup" class="btn btn-outline">Read More</a>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -281,21 +342,21 @@
                 <div class="footer-column">
                     <h3>Quick Links</h3>
                     <ul class="footer-links">
-                        <li><a href="#home">Home</a></li>
-                        <li><a href="#about">About Us</a></li>
-                        <li><a href="#services">Report Incident</a></li>
-                        <li><a href="#articles">Resources</a></li>
-                        <li><a href="#contact">Contact</a></li>
+                        <li><a href="#home" class="scroll-link">Home</a></li>
+                        <li><a href="#about" class="scroll-link">About Us</a></li>
+                        <li><a href="#services" class="scroll-link">Report Incident</a></li>
+                        <li><a href="#articles" class="scroll-link">Resources</a></li>
+                        <li><a href="#contact" class="scroll-link">Contact</a></li>
                     </ul>
                 </div>
                 <div class="footer-column">
                     <h3>Services</h3>
                     <ul class="footer-links">
-                        <li><a href="#">Incident Reporting</a></li>
-                        <li><a href="#">Experience Sharing</a></li>
-                        <li><a href="#">Safety Statistics</a></li>
-                        <li><a href="#">Educational Resources</a></li>
-                        <li><a href="#">Community Events</a></li>
+                        <li><a href="#services" class="scroll-link">Incident Reporting</a></li>
+                        <li><a href="#services" class="scroll-link">Experience Sharing</a></li>
+                        <li><a href="#services" class="scroll-link">Safety Statistics</a></li>
+                        <li><a href="#articles" class="scroll-link">Educational Resources</a></li>
+                        <li><a href="#services" class="scroll-link">Community Events</a></li>
                     </ul>
                 </div>
                 <div class="footer-column">
@@ -311,6 +372,6 @@
         </div>
     </footer>
 
-    <script src="transpori/javascript/javascript.js"></script>
+    <script src="/PFA/transpori/home/javascript/transpori javascript.js"></script>
 </body>
 </html>

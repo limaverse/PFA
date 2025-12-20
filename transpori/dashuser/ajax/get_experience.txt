@@ -1,0 +1,35 @@
+<?php
+// C:\xampp\htdocs\PFA\transpori\dashuser\ajax\get_experience.php
+require_once '../database.php';
+
+header('Content-Type: application/json');
+
+if (isset($_GET['id'])) {
+    $id = $_GET['id'];
+    
+    $stmt = $conn->prepare("
+        SELECT e.*, 
+               CONCAT(m.first_name, ' ', m.last_name) as author_name,
+               c.name as category_name
+        FROM experiences e
+        LEFT JOIN members m ON e.member_id = m.id
+        LEFT JOIN categories c ON e.category_id = c.id
+        WHERE e.id = ?
+    ");
+    
+    $stmt->execute([$id]);
+    $experience = $stmt->fetch();
+    
+    if ($experience) {
+        $experience['date_formatted'] = date('F j, Y', strtotime($experience['created_at']));
+        $experience['author_initials'] = substr($experience['author_name'], 0, 2);
+        
+        echo json_encode([
+            'success' => true,
+            'experience' => $experience
+        ]);
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Experience not found']);
+    }
+}
+?>

@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transpori | User Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary: #8b5cf6;
+            --accent: #06b6d4;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --text: #ffffff;
+            --text-secondary: #e0e7ff;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --dark-bg: #0f172a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border: none;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--text);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--text);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: var(--text);
+        }
+
+        .section-title h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            min-height: 100vh;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            padding: 1.5rem 1rem;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2.5rem;
+            padding: 0 1rem;
+        }
+        
+        .sidebar-section-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent);
+            opacity: 0.7;
+            padding: 0.5rem 1rem;
+            margin-top: 1rem;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: var(--glass-bg);
+            color: var(--text);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.15);
+        }
+
+        .sidebar-nav a.active {
+            border-left: 5px solid var(--primary);
+            padding-left: 0.75rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex-grow: 1;
+            margin-left: 280px;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Form elements */
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            background: var(--glass-bg);
+            color: var(--text);
+            transition: border-color 0.3s;
+        }
+        
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        /* Stats Card */
+        .stat-card {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        
+        .stat-value {
+            font-size: 2.25rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .status-pending { background-color: #facc15; color: #1e1b4b; }
+        .status-published { background-color: var(--success); color: white; }
+        .status-declined { background-color: var(--danger); color: white; }
+
+        /* Post Cards */
+        .post-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .post-card:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            margin-right: 1rem;
+        }
+
+        .post-content {
+            color: var(--text);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.3s;
+            background: none;
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .action-btn:hover {
+            color: var(--text);
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+        }
+
+        .action-card:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .action-content h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--text);
+        }
+
+        .action-content p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Checkboxes */
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid var(--glass-border);
+            background: var(--glass-bg);
+            cursor: pointer;
+        }
+
+        input[type="checkbox"]:checked {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* Responsive Design */
+        .sidebar-toggle {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 101;
+            display: none;
+            background: var(--primary);
+            color: var(--text);
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                width: 250px;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            .sidebar-toggle {
+                display: block;
+            }
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .quick-actions {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .quick-actions {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .post-actions {
+                flex-wrap: wrap;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .section-title h2 {
+                font-size: 1.5rem;
+            }
+            
+            .stat-value {
+                font-size: 1.875rem;
+            }
+            
+            .stat-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Sidebar Toggle Button for Mobile -->
+    <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <a href="#" class="sidebar-logo">
+            <i class="fas fa-shield-alt"></i>
+            Transpori
+        </a>
+        
+        <nav class="sidebar-nav flex-grow">
+            <a href="#home" class="active" data-page="home">
+                <i class="fas fa-home w-5"></i> Home
+            </a>
+            
+            <a href="#my-experiences" data-page="my-experiences">
+                <i class="fas fa-history w-5"></i> My Experiences
+            </a>
+            
+            <a href="#share" data-page="share">
+                <i class="fas fa-plus-circle w-5"></i> Share Experience
+            </a>
+            
+            <a href="#tips" data-page="tips">
+                <i class="fas fa-lightbulb w-5"></i> Safety Tips
+            </a>
+            
+            <a href="#contacts" data-page="contacts">
+                <i class="fas fa-phone-alt w-5"></i> Emergency Contacts
+            </a>
+        </nav>
+        
+        <!-- User Profile -->
+        <div class="mt-auto pt-4 border-t border-white/10">
+            <div class="flex items-center gap-3 p-2">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-white font-bold">
+                    AJ
+                </div>
+                <div>
+                    <div class="font-semibold">Alice Johnson</div>
+                    <div class="text-xs text-text-secondary">Active User</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        
+        <!-- Dynamic Content Area -->
+        <div id="page-content">
+            <!-- Content will be rendered here by JavaScript -->
+        </div>
+
+    </main>
+
+    <!-- Share Experience Modal -->
+    <div id="share-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-primary">Share Your Experience</h2>
+                <button class="text-text-secondary hover:text-text" onclick="closeShareModal()">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            
+            <form id="experience-form">
+                <div class="form-group mb-4">
+                    <label class="block text-text-secondary mb-2">Share your transportation experience</label>
+                    <textarea class="form-textarea" placeholder="Tell us about your journey... What happened? How was the service? Any safety concerns or positive experiences?" required rows="4"></textarea>
+                </div>
+                
+                <div class="form-group mb-4">
+                    <label class="block text-text-secondary mb-2">Add Photos (Optional)</label>
+                    <div class="border-2 border-dashed border-glass-border rounded-lg p-6 text-center cursor-pointer hover:border-primary transition">
+                        <i class="fas fa-cloud-upload-alt text-3xl text-text-secondary mb-2"></i>
+                        <p class="text-text-secondary">Click to upload photos</p>
+                        <p class="text-sm text-text-secondary mt-1">Optional: Add photos of your journey</p>
+                    </div>
+                </div>
+                
+                <div class="form-group mb-6">
+                    <label class="flex items-center text-text-secondary">
+                        <input type="checkbox" class="mr-2">
+                        <span>Share anonymously</span>
+                    </label>
+                    <p class="text-sm text-text-secondary mt-1">Your name and profile picture will be hidden</p>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button type="button" class="btn btn-outline flex-1" onclick="closeShareModal()">Cancel</button>
+                    <button type="submit" class="btn flex-1">
+                        <i class="fas fa-paper-plane mr-2"></i> Share Experience
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Experience Detail Modal -->
+    <div id="detail-modal" class="modal">
+        <div class="modal-content">
+            <div id="modal-body">
+                <!-- Dynamic content goes here -->
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // Mock Data
+        let allPosts = [
+            { 
+                id: 1, 
+                user: "Mohamed K.", 
+                avatar: "MK", 
+                content: "Bus line 28 was exceptionally clean today! Driver was polite and followed all safety protocols. Great service!",
+                date: "2 hours ago",
+                likes: 24,
+                comments: 5,
+                isUserPost: false
+            },
+            { 
+                id: 2, 
+                user: "Sarah M.", 
+                avatar: "SM", 
+                content: "Had a scary experience on the metro yesterday. A man was following me between carriages. I reported it immediately to the station staff.",
+                date: "5 hours ago",
+                likes: 18,
+                comments: 12,
+                isUserPost: false
+            },
+            { 
+                id: 3, 
+                user: "You", 
+                avatar: "AJ", 
+                content: "The new buses on route 50 are amazing! Comfortable seats and working AC. Much better than the old ones.",
+                date: "1 day ago",
+                likes: 42,
+                comments: 8,
+                isUserPost: true
+            },
+            { 
+                id: 4, 
+                user: "Anon", 
+                avatar: "??", 
+                content: "Witnessed someone helping an elderly person with their bags on the TGM. Small acts of kindness make public transport better!",
+                date: "1 day ago",
+                likes: 56,
+                comments: 3,
+                anonymous: true,
+                isUserPost: false
+            },
+            { 
+                id: 5, 
+                user: "Ahmed R.", 
+                avatar: "AR", 
+                content: "Overcrowding on metro line 1 during rush hour is becoming a serious safety concern. Need more frequent trains.",
+                date: "2 days ago",
+                likes: 31,
+                comments: 15,
+                isUserPost: false
+            }
+        ];
+
+        let userPosts = [
+            { 
+                id: 3, 
+                content: "The new buses on route 50 are amazing! Comfortable seats and working AC. Much better than the old ones.",
+                date: "1 day ago",
+                status: "published",
+                likes: 42,
+                comments: 8
+            },
+            { 
+                id: 6, 
+                content: "Driver on bus 205 was speeding and ignoring stops. Very concerning behavior.",
+                date: "3 days ago",
+                status: "published",
+                likes: 15,
+                comments: 4
+            },
+            { 
+                id: 7, 
+                content: "Seat belts not working on multiple seats in the new metro coaches. Safety issue that needs addressing.",
+                date: "Just now",
+                status: "pending",
+                likes: 0,
+                comments: 0
+            },
+            { 
+                id: 8, 
+                content: "Clean and efficient service on the airport shuttle. Well done!",
+                date: "1 week ago",
+                status: "published",
+                likes: 28,
+                comments: 3
+            }
+        ];
+
+        let safetyTips = [
+            { id: 1, title: "Stay Alert", icon: "fas fa-eye", description: "Always be aware of your surroundings when using public transport." },
+            { id: 2, title: "Secure Belongings", icon: "fas fa-briefcase", description: "Keep your bags closed and in front of you where you can see them." },
+            { id: 3, title: "Emergency Exits", icon: "fas fa-door-open", description: "Note the location of emergency exits when boarding." },
+            { id: 4, title: "Travel in Groups", icon: "fas fa-users", description: "When possible, travel with friends or during busy hours." }
+        ];
+
+        let emergencyContacts = [
+            { id: 1, name: "Police Emergency", number: "197", description: "Immediate police assistance" },
+            { id: 2, name: "Ambulance", number: "190", description: "Medical emergencies" },
+            { id: 3, name: "Civil Protection", number: "198", description: "Fire and rescue services" },
+            { id: 4, name: "Transtu Support", number: "71900000", description: "Transport operator customer service" }
+        ];
+
+        let currentPage = "home";
+
+        // Initialize Dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPage(currentPage);
+            setupNavigation();
+            
+            // Form submission
+            document.getElementById('experience-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitExperience();
+            });
+            
+            // Setup responsive sidebar
+            if (window.innerWidth <= 1024) {
+                document.getElementById('sidebar').classList.remove('active');
+            } else {
+                document.getElementById('sidebar').classList.add('active');
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        function setupNavigation() {
+            document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.querySelectorAll('.sidebar-nav a').forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    
+                    const newPage = link.dataset.page;
+                    if (newPage) {
+                        currentPage = newPage;
+                        renderPage(newPage);
+                    }
+                    
+                    // Close sidebar on mobile after navigation
+                    if (window.innerWidth <= 1024) {
+                        toggleSidebar();
+                    }
+                });
+            });
+        }
+
+        function renderPage(page) {
+            const contentDiv = document.getElementById('page-content');
+            contentDiv.innerHTML = '';
+            
+            switch (page) {
+                case 'home':
+                    renderHome(contentDiv);
+                    break;
+                case 'my-experiences':
+                    renderMyExperiences(contentDiv);
+                    break;
+                case 'share':
+                    renderShareExperience(contentDiv);
+                    break;
+                case 'tips':
+                    renderSafetyTips(contentDiv);
+                    break;
+                case 'contacts':
+                    renderEmergencyContacts(contentDiv);
+                    break;
+                default:
+                    renderHome(contentDiv);
+            }
+        }
+
+        function renderHome(target) {
+            target.innerHTML = `
+                <div class="dashboard-header">
+                    <div>
+                        <h1 class="text-3xl font-extrabold">Welcome back, Alice!</h1>
+                        <p class="text-text-secondary">Recent experiences from our community</p>
+                    </div>
+                    <button class="btn" onclick="openShareModal()">
+                        <i class="fas fa-plus mr-2"></i> Share Experience
+                    </button>
+                </div>
+                
+                <div class="quick-actions mb-8">
+                    <div class="action-card" onclick="openShareModal()">
+                        <div class="action-icon">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <div class="action-content">
+                            <h3>Share Experience</h3>
+                            <p>Tell others about your journey</p>
+                        </div>
+                    </div>
+                    
+                    <div class="action-card" data-page="my-experiences">
+                        <div class="action-icon" style="background: linear-gradient(135deg, var(--success), var(--accent));">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <div class="action-content">
+                            <h3>My Experiences</h3>
+                            <p>View your shared experiences</p>
+                        </div>
+                    </div>
+                    
+                    <div class="action-card" data-page="tips">
+                        <div class="action-icon" style="background: linear-gradient(135deg, var(--warning), #d97706);">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div class="action-content">
+                            <h3>Safety Tips</h3>
+                            <p>Learn how to stay safe</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section-title mb-6">
+                    <h2>Community Experiences</h2>
+                </div>
+                
+                <div class="space-y-6 mb-8">
+                    ${allPosts.map(post => `
+                        <div class="post-card">
+                            <div class="post-header">
+                                <div class="post-avatar" style="background: ${post.anonymous ? '#6b7280' : 'linear-gradient(135deg, var(--primary), var(--secondary))'}">
+                                    ${post.avatar}
+                                </div>
+                                <div>
+                                    <div class="font-bold">${post.user}</div>
+                                    <div class="text-sm text-text-secondary">${post.date}</div>
+                                </div>
+                                ${post.isUserPost ? '<span class="status-badge status-published ml-auto">Your Post</span>' : ''}
+                            </div>
+                            
+                            <div class="post-content">
+                                ${post.content}
+                            </div>
+                            
+                            <div class="post-actions">
+                                <button class="action-btn" onclick="likePost(${post.id})">
+                                    <i class="fas fa-thumbs-up"></i>
+                                    <span>${post.likes}</span>
+                                </button>
+                                <button class="action-btn" onclick="showPostDetails(${post.id})">
+                                    <i class="fas fa-comment"></i>
+                                    <span>${post.comments} comments</span>
+                                </button>
+                                <button class="action-btn ml-auto" onclick="showPostDetails(${post.id})">
+                                    <i class="fas fa-eye"></i>
+                                    <span>View Details</span>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div class="glass-card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold mb-2">Your Contribution</h3>
+                            <p class="text-text-secondary">${userPosts.length} experiences shared</p>
+                        </div>
+                        <button class="btn" onclick="openShareModal()">
+                            <i class="fas fa-plus mr-2"></i> Add More
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Add click handlers to action cards
+            target.querySelectorAll('.action-card[data-page]').forEach(card => {
+                card.addEventListener('click', () => {
+                    const page = card.dataset.page;
+                    document.querySelectorAll('.sidebar-nav a').forEach(l => l.classList.remove('active'));
+                    document.querySelector(`[data-page="${page}"]`).classList.add('active');
+                    currentPage = page;
+                    renderPage(page);
+                });
+            });
+        }
+
+        function renderMyExperiences(target) {
+            const pendingPosts = userPosts.filter(p => p.status === 'pending');
+            const publishedPosts = userPosts.filter(p => p.status === 'published');
+            
+            target.innerHTML = `
+                <div class="dashboard-header">
+                    <div>
+                        <h1 class="text-3xl font-extrabold">My Experiences</h1>
+                        <p class="text-text-secondary">Manage and track your shared experiences</p>
+                    </div>
+                    <button class="btn" onclick="openShareModal()">
+                        <i class="fas fa-plus mr-2"></i> New Experience
+                    </button>
+                </div>
+                
+                <div class="glass-card mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="text-center p-4 rounded-lg bg-glass-bg border border-glass-border">
+                            <div class="text-3xl font-bold text-primary">${userPosts.length}</div>
+                            <div class="text-text-secondary">Total Experiences</div>
+                        </div>
+                        <div class="text-center p-4 rounded-lg bg-glass-bg border border-glass-border">
+                            <div class="text-3xl font-bold text-success">${publishedPosts.length}</div>
+                            <div class="text-text-secondary">Published</div>
+                        </div>
+                        <div class="text-center p-4 rounded-lg bg-glass-bg border border-glass-border">
+                            <div class="text-3xl font-bold text-warning">${pendingPosts.length}</div>
+                            <div class="text-text-secondary">Pending</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-6">
+                    ${userPosts.map(post => `
+                        <div class="post-card">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <div class="font-bold text-lg">Experience #${post.id}</div>
+                                    <div class="text-sm text-text-secondary">${post.date}</div>
+                                </div>
+                                <span class="status-badge status-${post.status}">
+                                    <i class="fas fa-circle text-xs mr-1"></i>
+                                    ${post.status.charAt(0).toUpperCase() + post.status.slice(1)}
+                                </span>
+                            </div>
+                            
+                            <div class="post-content mb-4">
+                                ${post.content}
+                            </div>
+                            
+                            <div class="flex justify-between items-center">
+                                <div class="text-sm text-text-secondary">
+                                    <i class="fas fa-thumbs-up mr-1"></i> ${post.likes} likes
+                                    <i class="fas fa-comment ml-4 mr-1"></i> ${post.comments} comments
+                                </div>
+                                <div class="flex gap-2">
+                                    <button class="btn btn-outline" onclick="showPostDetails(${post.id})">
+                                        <i class="fas fa-eye mr-1"></i> View
+                                    </button>
+                                    ${post.status === 'pending' ? `
+                                        <button class="btn btn-outline" onclick="editPost(${post.id})">
+                                            <i class="fas fa-edit mr-1"></i> Edit
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                ${userPosts.length === 0 ? `
+                    <div class="glass-card text-center py-12">
+                        <i class="fas fa-edit text-4xl text-text-secondary mb-4"></i>
+                        <h3 class="text-xl font-bold text-text mb-2">No experiences yet</h3>
+                        <p class="text-text-secondary mb-6">Share your first transportation experience!</p>
+                        <button class="btn" onclick="openShareModal()">
+                            <i class="fas fa-plus mr-2"></i> Share Your First Experience
+                        </button>
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        function renderShareExperience(target) {
+            target.innerHTML = `
+                <div class="dashboard-header">
+                    <div>
+                        <h1 class="text-3xl font-extrabold">Share Experience</h1>
+                        <p class="text-text-secondary">Help others by sharing your transportation journey</p>
+                    </div>
+                </div>
+                
+                <div class="glass-card">
+                    <form id="main-experience-form">
+                        <div class="form-group mb-6">
+                            <label class="block text-text-secondary mb-2">Tell us about your experience</label>
+                            <textarea class="form-textarea" placeholder="Describe your journey... What happened? How was the service? Any safety concerns or positive experiences?" rows="6" required></textarea>
+                            <div class="text-sm text-text-secondary mt-1">Be honest and detailed. Your experience helps improve transportation for everyone.</div>
+                        </div>
+                        
+                        <div class="form-group mb-6">
+                            <label class="block text-text-secondary mb-2">Add Photos (Optional)</label>
+                            <div class="border-2 border-dashed border-glass-border rounded-lg p-8 text-center cursor-pointer hover:border-primary transition">
+                                <i class="fas fa-camera text-4xl text-text-secondary mb-4"></i>
+                                <p class="text-text-secondary">Click to upload photos of your journey</p>
+                                <p class="text-sm text-text-secondary mt-2">Max 5 photos • 5MB each</p>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-6">
+                            <label class="flex items-center text-text-secondary">
+                                <input type="checkbox" class="mr-2">
+                                <span>Share anonymously</span>
+                            </label>
+                            <p class="text-sm text-text-secondary mt-1">Your name and profile will be hidden from other users</p>
+                        </div>
+                        
+                        <div class="form-group mb-6">
+                            <label class="flex items-center text-text-secondary">
+                                <input type="checkbox" class="mr-2" required>
+                                <span>I confirm this is my genuine experience *</span>
+                            </label>
+                        </div>
+                        
+                        <div class="flex gap-3">
+                            <button type="button" class="btn btn-outline flex-1">Save as Draft</button>
+                            <button type="submit" class="btn flex-1">
+                                <i class="fas fa-paper-plane mr-2"></i> Share Experience
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            
+            // Add form submission handler
+            document.getElementById('main-experience-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitExperience();
+            });
+        }
+
+        function renderSafetyTips(target) {
+            target.innerHTML = `
+                <div class="dashboard-header">
+                    <div>
+                        <h1 class="text-3xl font-extrabold">Safety Tips</h1>
+                        <p class="text-text-secondary">Stay safe while using public transportation</p>
+                    </div>
+                </div>
+                
+                <div class="glass-card mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        ${safetyTips.map(tip => `
+                            <div class="flex items-start p-4 rounded-lg bg-glass-bg border border-glass-border">
+                                <div class="w-12 h-12 rounded-lg bg-gradient-to-r from-primary to-secondary flex items-center justify-center mr-4">
+                                    <i class="${tip.icon} text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-lg mb-2">${tip.title}</h4>
+                                    <p class="text-text-secondary">${tip.description}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass-card">
+                        <h3 class="text-lg font-bold mb-4">Before You Travel</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-success mt-1 mr-2"></i>
+                                <span class="text-text-secondary">Plan your route in advance</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-success mt-1 mr-2"></i>
+                                <span class="text-text-secondary">Share your itinerary with someone</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-success mt-1 mr-2"></i>
+                                <span class="text-text-secondary">Check service updates and delays</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-success mt-1 mr-2"></i>
+                                <span class="text-text-secondary">Have emergency numbers saved</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="glass-card">
+                        <h3 class="text-lg font-bold mb-4">While Traveling</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-success mt-1 mr-2"></i>
+                                <span class="text-text-secondary">Sit near the driver or in crowded areas</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-success mt-1 mr-2"></i>
+                                <span class="text-text-secondary">Keep valuables out of sight</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-success mt-1 mr-2"></i>
+                                <span class="text-text-secondary">Trust your instincts</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-success mt-1 mr-2"></i>
+                                <span class="text-text-secondary">Use the Transpori app to share experiences</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderEmergencyContacts(target) {
+            target.innerHTML = `
+                <div class="dashboard-header">
+                    <div>
+                        <h1 class="text-3xl font-extrabold">Emergency Contacts</h1>
+                        <p class="text-text-secondary">Important numbers for your safety (Preview Only)</p>
+                    </div>
+                </div>
+                
+                <div class="glass-card mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        ${emergencyContacts.map(contact => `
+                            <div class="p-4 rounded-lg bg-glass-bg border border-glass-border hover:border-primary transition">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div>
+                                        <h4 class="font-bold text-lg">${contact.name}</h4>
+                                        <div class="text-2xl font-bold text-primary mt-2">${contact.number}</div>
+                                    </div>
+                                    ${contact.name.includes('Emergency') ? 
+                                        '<span class="px-2 py-1 bg-red-500/20 text-red-400 text-xs font-bold rounded">EMERGENCY</span>' : 
+                                        ''
+                                    }
+                                </div>
+                                <p class="text-text-secondary text-sm">${contact.description}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <div class="glass-card">
+                    <div class="flex items-center p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                        <i class="fas fa-exclamation-triangle text-yellow-400 text-2xl mr-4"></i>
+                        <div>
+                            <div class="font-bold text-yellow-300">Important Notice</div>
+                            <div class="text-sm text-yellow-400/80">This is a preview. For actual emergencies, use your phone to call these numbers directly.</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Modal Functions
+        function openShareModal() {
+            document.getElementById('share-modal').classList.add('active');
+        }
+
+        function closeShareModal() {
+            document.getElementById('share-modal').classList.remove('active');
+        }
+
+        function showPostDetails(id) {
+            const post = [...allPosts, ...userPosts].find(p => p.id === id);
+            if (!post) return;
+            
+            document.getElementById('detail-modal').classList.add('active');
+            document.getElementById('modal-body').innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-primary">Experience Details</h2>
+                    <button class="text-text-secondary hover:text-text" onclick="closeDetailModal()">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-white font-bold mr-4">
+                            ${post.avatar || 'U'}
+                        </div>
+                        <div>
+                            <div class="font-bold text-lg">${post.user || 'You'}</div>
+                            <div class="text-text-secondary">${post.date}</div>
+                        </div>
+                        ${post.status ? `
+                            <span class="status-badge status-${post.status} ml-auto">
+                                ${post.status.charAt(0).toUpperCase() + post.status.slice(1)}
+                            </span>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="p-4 rounded-lg bg-glass-bg border border-glass-border">
+                        <p class="text-text">${post.content}</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-center p-3 rounded-lg bg-primary/10 border border-primary/20">
+                            <div class="text-2xl font-bold text-primary">${post.likes || 0}</div>
+                            <div class="text-sm text-text-secondary">Likes</div>
+                        </div>
+                        <div class="text-center p-3 rounded-lg bg-secondary/10 border border-secondary/20">
+                            <div class="text-2xl font-bold text-secondary">${post.comments || 0}</div>
+                            <div class="text-sm text-text-secondary">Comments</div>
+                        </div>
+                    </div>
+                    
+                    ${post.status === 'pending' ? `
+                        <div class="p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+                            <div class="flex items-center">
+                                <i class="fas fa-clock text-yellow-400 mr-3"></i>
+                                <div>
+                                    <div class="font-medium text-yellow-300">Under Review</div>
+                                    <div class="text-sm text-yellow-400/80">Your experience is being reviewed by our team.</div>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${post.status === 'published' ? `
+                        <div class="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
+                            <div class="flex items-center">
+                                <i class="fas fa-check-circle text-green-400 mr-3"></i>
+                                <div>
+                                    <div class="font-medium text-green-300">Published</div>
+                                    <div class="text-sm text-green-400/80">Your experience is now visible to the community.</div>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+                
+                <div class="flex gap-3 mt-8">
+                    <button class="btn btn-outline flex-1" onclick="closeDetailModal()">Close</button>
+                    ${post.isUserPost || post.user === 'You' ? `
+                        <button class="btn flex-1" onclick="editPost(${post.id})">
+                            <i class="fas fa-edit mr-2"></i> Edit Experience
+                        </button>
+                    ` : `
+                        <button class="btn flex-1" onclick="likePost(${post.id})">
+                            <i class="fas fa-thumbs-up mr-2"></i> Like Experience
+                        </button>
+                    `}
+                </div>
+            `;
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detail-modal').classList.remove('active');
+        }
+
+        // Action Functions
+        function submitExperience() {
+            let textarea;
+            if (document.querySelector('#experience-form textarea')) {
+                textarea = document.querySelector('#experience-form textarea');
+            } else if (document.querySelector('#main-experience-form textarea')) {
+                textarea = document.querySelector('#main-experience-form textarea');
+            }
+            
+            const content = textarea.value.trim();
+            
+            if (!content) {
+                alert('Please write about your experience!');
+                return;
+            }
+            
+            const newPost = {
+                id: userPosts.length + 10,
+                content: content,
+                date: 'Just now',
+                status: 'pending',
+                likes: 0,
+                comments: 0
+            };
+            
+            userPosts.unshift(newPost);
+            
+            // Also add to all posts for community view
+            const communityPost = {
+                ...newPost,
+                user: 'You',
+                avatar: 'AJ',
+                isUserPost: true
+            };
+            
+            allPosts.unshift(communityPost);
+            
+            alert('Experience shared successfully! It is now under review.');
+            closeShareModal();
+            
+            // Update current view
+            if (currentPage === 'home' || currentPage === 'my-experiences') {
+                renderPage(currentPage);
+            }
+        }
+
+        function likePost(id) {
+            const post = [...allPosts, ...userPosts].find(p => p.id === id);
+            if (post) {
+                post.likes = (post.likes || 0) + 1;
+                alert('Liked this experience!');
+                
+                if (currentPage === 'home') {
+                    renderPage(currentPage);
+                }
+                closeDetailModal();
+            }
+        }
+
+        function editPost(id) {
+            const post = userPosts.find(p => p.id === id);
+            if (post) {
+                alert(`Editing experience #${id}\n\nIn a real app, this would open an edit form.`);
+                // In a real app, you would open an edit form with the post content
+            }
+        }
+
+        // Close modals on outside click
+        document.addEventListener('click', (e) => {
+            const shareModal = document.getElementById('share-modal');
+            const detailModal = document.getElementById('detail-modal');
+            
+            if (e.target === shareModal) {
+                closeShareModal();
+            }
+            if (e.target === detailModal) {
+                closeDetailModal();
+            }
+        });
+
+        // Responsive sidebar logic
+        window.addEventListener('resize', () => {
+            const sidebar = document.getElementById('sidebar');
+            if (window.innerWidth > 1024) {
+                sidebar.classList.add('active');
+            } else {
+                sidebar.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

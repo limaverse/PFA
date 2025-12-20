@@ -167,16 +167,21 @@ body::before {
     width: 100%;
     padding: 0.75rem;
     margin-top: 0.5rem;
-    border-radius: 10px;
-    border: 1px solid var(--glass-border);
-    background: var(--glass-bg);
-    color: var(--text);
-    transition: border-color 0.3s;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transition: all 0.2s;
 }
 .admin-input:focus, .admin-select:focus, .admin-textarea:focus {
     outline: none;
-    border-color: var(--primary);
+    border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+.admin-textarea {
+    min-height: 150px;
+    resize: vertical;
 }
 
 /* Dashboard Header */
@@ -225,8 +230,8 @@ body::before {
 /* Table styles */
 .glass-table {
     width: 100%;
-    border-collapse: collapse;
-    overflow: hidden;
+    border-collapse: separate;
+    border-spacing: 0;
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
@@ -239,36 +244,47 @@ body::before {
 
 .glass-table th {
     background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
     font-weight: 600;
-    color: var(--text);
     text-transform: uppercase;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.glass-table tr {
-    background: var(--glass-bg);
-    transition: background-color 0.3s ease;
+.glass-table td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-table tr:last-child td {
+    border-bottom: none;
 }
 
 .glass-table tr:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .status-badge {
+    display: inline-block;
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    display: inline-block;
+    text-transform: uppercase;
 }
 
-.status-pending { background-color: #facc15; color: #1e1b4b; }
-.status-accepted { background-color: var(--success); }
-.status-refused { background-color: var(--danger); }
-.status-active { background-color: var(--primary); }
-.status-inactive { background-color: #6b7280; }
-.status-verified { background-color: var(--success); } 
-.status-unverified { background-color: #f97316; }
+.status-pending { background-color: #f59e0b; color: white; }
+.status-accepted { background-color: #10b981; color: white; }
+.status-refused { background-color: #ef4444; color: white; }
+.status-resolved { background-color: #3b82f6; color: white; }
+.status-active { background-color: #10b981; color: white; }
+.status-inactive { background-color: #6b7280; color: white; }
+.status-verified { background-color: #8b5cf6; color: white; }
+.status-unverified { background-color: #f97316; color: white; }
+.status-enabled { background-color: #10b981; color: white; }
+.status-disabled { background-color: #6b7280; color: white; }
 
 /* Responsive Design */
 .sidebar-toggle {
@@ -287,31 +303,43 @@ body::before {
 @media (max-width: 1024px) {
     .sidebar {
         transform: translateX(-100%);
-        position: fixed;
-        width: 250px;
+        transition: transform 0.3s ease;
     }
+    
     .sidebar.active {
         transform: translateX(0);
     }
-    .main-content {
-        margin-left: 0;
-        width: 100%;
-    }
+    
     .sidebar-toggle {
-        display: block;
+        display: block !important;
     }
+}
+
+@media (max-width: 768px) {
     .dashboard-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
     }
+    
     .stats-grid {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+        grid-template-columns: 1fr;
+    }
+    
+    .glass-table {
+        display: block;
+        overflow-x: auto;
     }
 }
 
-@media (max-width: 768px) {
-    .stats-grid {
-        grid-template-columns: 1fr !important;
+/* Print styles */
+@media print {
+    .sidebar, .sidebar-toggle {
+        display: none !important;
+    }
+    
+    .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
     }
 }

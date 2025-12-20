@@ -642,5 +642,117 @@ function resetUserPassword(id) {
 
 // Responsive sidebar logic
 if (window.innerWidth > 1024) {
-     document.getElementById('sidebar').classList.add('active');
+    document.getElementById('sidebar').classList.add('active');
 }
+
+window.addEventListener('resize', () => {
+    if (window.innerWidth > 1024) {
+        document.getElementById('sidebar').classList.add('active');
+    } else {
+        document.getElementById('sidebar').classList.remove('active');
+    }
+});
+
+// Global variables to store PHP data
+let phpData = {
+    reports_count: 0,
+    pending_reports: 0,
+    active_users: 0,
+    user_posts: 0,
+    recent_reports: [],
+    unverified_users: [],
+    categories: [],
+    emergency_contacts: [],
+    users_by_status: []
+};
+
+// Extract PHP data on page load
+function extractPhpData() {
+    const phpDataElement = document.getElementById('php-data');
+    if (phpDataElement) {
+        phpData.reports_count = parseInt(phpDataElement.getAttribute('data-reports-count')) || incidentReports.length;
+        phpData.pending_reports = parseInt(phpDataElement.getAttribute('data-pending-reports')) || incidentReports.filter(r => r.status === 'pending').length;
+        phpData.active_users = parseInt(phpDataElement.getAttribute('data-active-users')) || users.filter(u => u.status === 'active').length;
+        phpData.user_posts = parseInt(phpDataElement.getAttribute('data-user-posts')) || users.reduce((sum, user) => sum + user.posts, 0);
+        
+        try {
+            phpData.recent_reports = JSON.parse(phpDataElement.getAttribute('data-recent-reports')) || incidentReports;
+            phpData.unverified_users = JSON.parse(phpDataElement.getAttribute('data-unverified-users')) || users.filter(u => !u.verified);
+            phpData.categories = JSON.parse(phpDataElement.getAttribute('data-categories')) || categories;
+            phpData.emergency_contacts = JSON.parse(phpDataElement.getAttribute('data-emergency-contacts')) || emergencyContacts;
+            phpData.users_by_status = JSON.parse(phpDataElement.getAttribute('data-users-by-status')) || users;
+        } catch (e) {
+            console.error('Error parsing PHP data:', e);
+        }
+        
+        phpDataElement.style.display = 'none';
+    }
+}
+
+// Override DOMContentLoaded to use PHP data
+document.removeEventListener('DOMContentLoaded', () => {});
+document.addEventListener('DOMContentLoaded', () => {
+    extractPhpData();
+    renderPage(currentPage);
+    setupSidebarNav();
+});
+
+// AJAX function for database updates
+function updateReportStatus(reportId, status) {
+    if(confirm(`Are you sure you want to ${status} this report?`)) {
+        fetch('update_report.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                report_id: reportId,
+                status: status
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                alert('Report status updated successfully!');
+                renderPage(currentPage);
+            } else {
+                alert('Error updating report: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error updating report status');
+        });
+    }
+}
+
+// Updated renderDashboard to use PHP data
+document.addEventListener('DOMContentLoaded', () => {
+    const originalRenderDashboard = renderDashboard;
+    renderDashboard = function(target) {
+        const pendingReports = phpData.pending_reports;
+        const activeUsers = phpData.active_users;
+        const totalReports = phpData.reports_count;
+        const totalUserPosts = phpData.user_posts;
+
+        target.innerHTML = `
+            <div class="section-title"><h2>Dashboard & Key Metrics</h2></div>
+            <div class="stats-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                ${createStatCard('Total Reports', totalReports, 'fas fa-shield-alt', 'linear-gradient(135deg, var(--primary), var(--secondary))')}
+                ${createStatCard('Pending Reports', pendingReports, 'fas fa-exclamation-triangle', 'linear-gradient(135deg, #facc15, #f59e0b)')}
+                ${createStatCard('Active Users', activeUsers, 'fas fa-users', 'linear-gradient(135deg, var(--accent), #4ade80)')}
+                ${createStatCard('User Posts', totalUserPosts, 'fas fa-comment', 'linear-gradient(135deg, #ef4444, #f97316)')}
+            </div>
+            
+            <div class="section-title mt-4"><h2>Report Management: Pending Review</h2></div>
+            <div class="glass-card p-0 mb-8">
+                ${createReportTable((phpData.recent_reports || incidentReports).filter(r => r.status === 'pending').slice(0, 5))}
+            </div>
+            
+            <div class="section-title mt-4"><h2>User Management: Unverified Profiles</h2></div>
+            <div class="glass-card p-0">
+                ${createUserTable((phpData.unverified_users || users.filter(u => !u.verified)).slice(0, 5))}
+            </div>
+        `;
+    };
+});
